@@ -1,11 +1,14 @@
 var express = require('express')
 , app = express()
+, hbs = require('express-hbs')
 , server = require('http').createServer(app)
 , io = require("socket.io").listen(server)
 , uuid = require('node-uuid')
 , Room = require('./room.js')
+, viewsDir = __dirname + '/views'
 , _ = require('underscore')._;
 
+  
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 3000);
   	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
@@ -15,12 +18,33 @@ app.configure(function() {
 	app.use('/components', express.static(__dirname + '/components'));
 	app.use('/js', express.static(__dirname + '/js'));
 	app.use('/icons', express.static(__dirname + '/icons'));
-	app.set('views', __dirname + '/views');
-	app.engine('html', require('ejs').renderFile);
+	app.engine('hbs', hbs.express3({
+		defaultLayout: __dirname + '/views/layout/default.hbs'
+	}));
+	app.set('view engine', 'hbs');
+	app.set('views', viewsDir);
 });
+// Register sync helper
+  hbs.registerHelper('link', function(text, options) {
+    var attrs = [];
+    for (var prop in options.hash) {
+      attrs.push(prop + '="' + options.hash[prop] + '"');
+    }
+    return new hbs.SafeString(
+      "<a " + attrs.join(" ") + ">" + text + "</a>"
+    );
+  });
+
 
 app.get('/', function(req, res) {
-  res.render('index.html');
+    res.render('index', {
+      title: '3Q Teacher'
+    });
+});
+app.get('/room', function(req, res) {
+  res.render('room',{
+      title: 'Demo Room'
+    });
 });
 
 server.listen(app.get('port'), app.get('ipaddr'), function(){
