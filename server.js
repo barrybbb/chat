@@ -8,7 +8,10 @@ var express = require('express')
 , viewsDir = __dirname + '/views'
 , _ = require('underscore')._;
 
-  
+//
+var numUsers = 0
+, roomName = 'Demo'
+, role = ['teacher', 'student'];
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 3000);
   	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
@@ -42,7 +45,10 @@ app.get('/', function(req, res) {
     });
 });
 app.get('/room', function(req, res) {
-  res.render('room',{
+  var level = (numUsers === 0?role[0]:role[1]);
+  ++numUsers;
+  console.log('Welcome '+ level);
+  res.render('room/'+level,{
       title: 'Demo Room'
     });
 });
@@ -196,7 +202,7 @@ function purge(s, action) {
 		}		
 	}
 }
-var numUsers = 0;
+
 io.sockets.on("connection", function (socket) {
 	
 	console.log('Receiving connection event.');
@@ -206,8 +212,8 @@ io.sockets.on("connection", function (socket) {
 		console.log('Receiving (join room) event from room: '+msg.room);
 		socket.msg = msg.room;
 		// add the client's msg to the global list
-		++numUsers;
-		console.log('User Count: ' + numUsers);
+		//++numUsers;
+		//console.log('User Count: ' + numUsers);
 		addedUser = true;
 		//Join the room named 'xxxxx'.
 		socket.join(msg.room);
