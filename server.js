@@ -11,7 +11,7 @@ var express = require('express')
 //
 var numUsers = 0
 , roomName = 'Demo'
-, role = ['teacher', 'student'];
+, role = ['Teacher', 'Student'];
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 3000);
   	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
@@ -49,7 +49,7 @@ app.get('/room', function(req, res) {
   ++numUsers;
   console.log('Welcome '+ level);
   res.render('room/'+level,{
-      title: 'Demo Room'
+      title: 'Demo Room ' + level
     });
 });
 
@@ -235,6 +235,13 @@ io.sockets.on("connection", function (socket) {
 		console.log('Receiving webrtc event from room: '+msg.room);
 		socket.broadcast.to(msg.room).emit('webrtc', {data: msg.data});
 	});
+	socket.on("disconnect", function() {
+		//if (typeof people[socket.id] !== "undefined") { //this handles the refresh of the name screen
+			--numUsers;
+			console.log('User Count: ' + numUsers);
+			//purge(socket, "disconnect");
+		//}
+	});
 	//socket.emit('connect');
 	/*
 	socket.on("joinserver", function(name, device) {
@@ -327,13 +334,7 @@ io.sockets.on("connection", function (socket) {
 		}
 	});
 
-	socket.on("disconnect", function() {
-		if (typeof people[socket.id] !== "undefined") { //this handles the refresh of the name screen
-			++numUsers;
-			console.log('User Count: ' + numUsers);
-			purge(socket, "disconnect");
-		}
-	});
+
 
 	//Room functions
 	socket.on("createRoom", function(name) {
