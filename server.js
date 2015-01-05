@@ -13,8 +13,8 @@ var numUsers = 0
 , roomName = 'Demo'
 , role = ['Teacher', 'Student'];
 app.configure(function() {
-	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 3000);
-  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
+	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 80);
+  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP);
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.static(__dirname + '/public'));
@@ -38,13 +38,14 @@ app.configure(function() {
     );
   });
 
-
+/*
 app.get('/', function(req, res) {
     res.render('index', {
       title: '3Q Teacher'
     });
 });
-app.get('/room', function(req, res) {
+*/
+app.get('/', function(req, res) {
   var level = (numUsers === 0?role[0]:role[1]);
   ++numUsers;
   console.log('Welcome '+ level);
